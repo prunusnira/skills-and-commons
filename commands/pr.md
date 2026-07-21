@@ -53,7 +53,7 @@ argument-hint: [target_branch] [--from origin_branch] [--ocr]
 - `git diff {target_branch}...{origin_branch}` - 전체 diff (필요 시 범위 좁혀서 읽기)
 - `gh repo view --json owner,name -q '.owner.login + "/" + .name'` - 리포지토리 식별자
 
-origin_branch가 remote에 없으면 `git push -u origin {origin_branch}`를 먼저 실행할지 사용자에게 확인한다 (CLAUDE.md 8번 원칙 - 되돌리기 어려운 작업).
+origin_branch가 remote에 없으면 원격 저장소 상태를 임의로 변경하지 말고 `git push -u origin {origin_branch}`를 먼저 실행할지 사용자에게 확인한다.
 
 ## 3단계: 이슈 추적
 
@@ -63,7 +63,7 @@ origin_branch에서 티켓 ID를 추출한다. 일반적으로 브랜치명 자�
 - 커밋 메시지에서 `[JOB-\d+]` 패턴을 추가로 검색해서 교차 검증
 - 티켓 발견 시 `gh issue view {숫자} --repo [user/myrepo] --json number,title,body` 로 본문 조회
 
-조회된 이슈 본문을 1~3문장으로 요약한다. 이슈 본문이 모호하면 "이슈 본문 확인 필요"로 표기 (CLAUDE.md 8번 원칙).
+조회된 이슈 본문을 1~3문장으로 요약한다. 이슈 본문이 모호하면 내용을 추정하지 말고 "이슈 본문 확인 필요"로 표기한다.
 
 이슈를 찾지 못한 경우 PR 본문에서 연결 이슈 섹션을 생략하거나 "연결 이슈 없음"으로 표기.
 
@@ -215,11 +215,11 @@ PR 생성 후 아래만 짧게 출력:
 - 커밋 수
 - `--ocr` 실행 시: OCR 발견 이슈 수 + 저장된 HTML 파일 경로
 
-전체 본문을 다시 출력하지 않는다 (CLAUDE.md 6번 원칙).
+불필요한 반복을 피하기 위해 전체 PR 본문은 다시 출력하지 않는다.
 
 ## 유의사항
 
-- force push, push, 브랜치 삭제 등 되돌리기 어려운 작업은 사전 확인 필수 (CLAUDE.md "Executing actions with care")
-- 이슈 본문 요약 시 추정하지 않는다 (CLAUDE.md 7번 원칙)
+- force push, push, 브랜치 삭제 등 원격 상태나 이력에 영향을 주는 작업은 실행 전 사용자 확인 필수. force push는 사용하지 않으며 main/master에는 어떤 경우에도 force push하지 않음
+- 이슈 본문 요약은 조회된 내용만 근거로 작성하고, 확인되지 않은 요구사항이나 의도는 추정하지 않음
 - diff가 매우 큰 경우 통계와 name-status로 먼저 전체를 파악한 뒤 주요 파일만 선별적으로 읽는다
 - 브랜치명에서 티켓 ID를 추출할 수 없으면 커밋 메시지 최신 것에서 추출 시도. 둘 다 실패하면 연결 이슈 없이 진행

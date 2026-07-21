@@ -40,7 +40,7 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 - `which ocr` - CLI 설치 여부. 없으면 "ocr이 설치되어 있지 않습니다. `npm install -g @alibaba-group/open-code-review` 로 설치하세요." 출력 후 중단
 - `ocr version` - 설치된 버전 확인
-- `cat ~/.opencodereview/config.json 2>/dev/null` - LLM 설정 여부. 없으면 "LLM 설정이 없습니다. `ocr config provider` 또는 `ocr config set llm.url/auth_token/model` 로 먼저 설정하세요." 출력 후 중단 (CLAUDE.md 8번 원칙 - 추정 금지). 내용 출력 금지 (API 키 포함)
+- `cat ~/.opencodereview/config.json 2>/dev/null` - LLM 설정 여부. 없으면 설정 상태를 추정하지 않고 "LLM 설정이 없습니다. `ocr config provider` 또는 `ocr config set llm.url/auth_token/model` 로 먼저 설정하세요." 출력 후 중단. 내용 출력 금지 (API 키 포함)
 - `git rev-parse --is-inside-work-tree` - Git 저장소 여부
 - `git rev-parse --abbrev-ref HEAD` - 현재 브랜치명
 
@@ -59,7 +59,7 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 그 외에는 브랜치 범위 모드:
 
-- `git rev-parse --verify origin/<target_branch>` - remote 브랜치 존재 확인. 실패하면 `git fetch origin <target_branch>` 실행 여부 확인 (CLAUDE.md 8번 원칙)
+- `git rev-parse --verify origin/<target_branch>` - remote 브랜치 존재 확인. 실패하면 원격 상태를 임의로 변경하지 말고 `git fetch origin <target_branch>` 실행 여부를 사용자에게 확인
 - 현재 브랜치가 `target_branch`와 같으면 "현재 브랜치가 {target_branch}입니다. 리뷰할 변경사항이 없습니다." 출력 후 중단
 - 모드: `range`
 - base SHA: `git rev-parse origin/<target_branch>`
@@ -109,7 +109,7 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 실행 전 커맨드를 사용자에게 보여주고, 타임아웃은 600000ms (10분).
 
-실행 중 실패하면 stderr을 그대로 보여주고 원인 진단을 시도하지 않는다 (CLAUDE.md 7번 원칙). 사용자가 직접 판단.
+실행 중 실패하면 확인되지 않은 원인을 추정하지 않는다. stderr에서 API 키 등 민감 정보를 마스킹한 뒤 오류 내용을 보여주고 사용자가 판단할 수 있게 한다.
 
 ## 4단계: HTML 결과 저장
 
@@ -179,7 +179,7 @@ HTML 저장 후 `.claude/ocr/index.json`에 2단계에서 만든 캐시 키로 �
 
 ## 5단계: 결과 보고
 
-터미널에 짧게 출력 (CLAUDE.md 6번 원칙):
+터미널에는 아래 결과만 짧게 출력한다:
 
 - 저장된 HTML 파일 경로
 - 발견된 이슈 수 (심각도별 집계 가능하면 표시)
@@ -201,8 +201,8 @@ HTML 저장 후 `.claude/ocr/index.json`에 2단계에서 만든 캐시 키로 �
 
 ## 유의사항
 
-- `ocr` CLI 설치, LLM 설정, fetch 등 부작용이 있는 작업은 사용자 확인 없이 진행하지 않는다 (CLAUDE.md 8번 원칙)
+- `ocr` CLI 설치, LLM 설정, fetch처럼 환경이나 원격 상태를 바꾸는 작업은 사용자 확인 없이 진행하지 않는다
 - ocr 설정 파일(`~/.opencodereview/config.json`)에는 API 키가 포함될 수 있으므로 출력 시 auth_token, api_key, token 값은 마스킹
 - HTML에는 API 키, LLM URL의 인증 정보, 로컬 절대 경로 중 민감 정보는 포함하지 않는다
 - HTML은 PR을 만들기 전 사전 점검 용도의 개인 메모. CI를 대체하지 않는다
-- `.claude/ocr/` 디렉터리의 HTML 파일들은 누적되므로 사용자가 주기적으로 정리. 자동 삭제 금지 (CLAUDE.md 8번 원칙 - 되돌리기 어려운 작업)
+- `.claude/ocr/` 디렉터리의 HTML 파일들은 누적되므로 사용자가 주기적으로 정리한다. 되돌리기 어려운 자동 삭제는 하지 않는다
