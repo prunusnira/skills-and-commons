@@ -10,3 +10,7 @@
 - AI-Generated Custom Markdowns
 - 직접 내용 일부 수정
 - 기타 등등 (더 추가될 예정)
+
+## 비고
+
+- e2e는 playwright 사용을 위해 작성됨
