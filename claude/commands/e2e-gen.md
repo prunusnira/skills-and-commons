@@ -9,9 +9,10 @@ description: 승인된 E2E 계약과 실행 증거로 Playwright spec을 생성�
 ## 1. 사전 조건
 
 1. 대상은 정확히 `{domain}/{name}` 형식이어야 하며 `..`, 절대 경로, 빈 segment를 허용하지 않는다.
-   - `SPEC_PATH = apps/service/e2e/{domain}/{name}.spec.ts`
+   - `SPEC_PATH = [project root]/e2e/{domain}/{name}.spec.ts`
    - `SPEC_TARGET = e2e/{domain}/{name}.spec.ts`
-2. `apps/service/e2e/.session/current`에서 현재 세션을 찾는다.
+   - fixture 기본 경로는 `[project root]/e2e/fixtures/{domain}/{state}.json`
+2. `[project root]/e2e/.session/current`에서 현재 세션을 찾는다.
 3. 해당 세션의 `scenario.md`와 `execution.md`를 읽는다.
 4. 다음 중 하나라도 해당하면 생성하지 않는다.
    - Planner 상태가 `READY`가 아님
@@ -20,6 +21,7 @@ description: 승인된 E2E 계약과 실행 증거로 Playwright spec을 생성�
    - Executor가 실행하지 못한 케이스인데 미실행 이유가 정리되지 않음
 
 대상 파일이 이미 존재하면 내용을 읽고 사용자 변경을 보존한다. 전면 덮어쓰지 말고 케이스 단위로 추가·수정한다.
+기존 flat/legacy fixture를 편의상 복사하지 않는다. 승인된 case가 요구하는 응답 상태만 현재 소비 schema로 생성한다.
 
 ## 2. Generator
 
@@ -38,7 +40,7 @@ Generator는 대상 spec을 만들고 대상 파일에 한정해 `--list` 검증
 Generator가 성공하면 아래 조건으로 대상 spec을 실행한다.
 
 ```bash
-pnpm -C apps/service exec playwright test <SPEC_TARGET> --project=chromium --retries=0
+pnpm -C [project root] exec playwright test <SPEC_TARGET> --project=chromium --retries=0
 ```
 
 - 통과하면 안정성 검증으로 이동한다.
@@ -56,7 +58,7 @@ Healer는 최대 3회의 진단→최소 수정→재실행만 수행한다. `PR
 단일 실행 통과 후:
 
 ```bash
-pnpm -C apps/service exec playwright test <SPEC_TARGET> \
+pnpm -C [project root] exec playwright test <SPEC_TARGET> \
   --project=chromium --retries=0 --repeat-each=3
 ```
 
@@ -67,6 +69,7 @@ pnpm -C apps/service exec playwright test <SPEC_TARGET> \
 다음을 보고한다.
 
 - 생성/수정된 파일과 test case 수
+- 생성/재사용한 domain fixture와 각 응답 상태
 - 단일 실행 결과
 - healing 횟수와 각 원인의 증거
 - 3회 안정성 실행 결과

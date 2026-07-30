@@ -18,6 +18,8 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 - 원래 oracle을 변경하지 않는다.
 - 앱 코드는 읽기만 한다.
+- fixture 변경은 대상 domain의 응답 상태와 소비 schema가 틀렸다는 증거가 있을 때만 허용한다.
+- 다른 domain과 공유하는 fixture를 수정해 통과시키지 않는다. 상태가 다르면 새 domain/state fixture를 만든다.
 - trace가 있으면 DOM snapshot뿐 아니라 action log와 network도 함께 본다.
 - `error-context.md`가 항상 존재한다고 가정하지 않는다. stdout, trace, screenshot, source를 조합한다.
 - 수정 전 실패를 재현하고 원인 하나를 증명한다.

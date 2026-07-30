@@ -1,0 +1,66 @@
+# 이 파일에서는 dev로 push되는 경우에만 동작하도록 세팅되어있습니다
+# 하지만 아래 step에는 pr/push 여부에 따라 동작을 달리할 수 있도록 정의 해두었습니다
+
+name: 'Service:Storybook Chromatic Build'
+
+on:
+  push:
+    paths:
+      - 'apps/service/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'turbo.json'
+    branches:
+      - dev
+  workflow_dispatch:
+
+env:
+  CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+
+jobs:
+  chromatic-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.15.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Initialize MSW
+        working-directory: apps/service
+        run: npx msw init public --save
+
+      - name: Build Storybook
+        working-directory: apps/service
+        run: npx storybook build --output-dir storybook-static --stats-json
+
+      - name: Publish to Chromatic
+        if: github.event_name == 'pull_request'
+        working-directory: apps/service
+        run: npx chromatic \
+              --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }} \
+              --storybook-build-dir=storybook-static \
+              --exit-zero-on-changes
+
+      - name: Publish to Chromatic
+        if: github.event_name == 'push'
+        working-directory: apps/service
+        run: npx chromatic \
+          --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }} \
+          --storybook-build-dir=storybook-static \
+          --exit-zero-on-changes \
+          --auto-accept-changes=dev

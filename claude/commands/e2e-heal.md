@@ -8,18 +8,19 @@ description: 실패한 Playwright spec을 증거 기반으로 진단하고 허�
 
 ## 1. 대상 확정
 
-- 인수가 있으면 `apps/service/e2e/` 아래의 정확한 spec 또는 domain으로 해석한다.
-- 인수가 없으면 현재 세션의 `generation.md`와 `apps/service/test-results/`에서 직전 실패 spec을 찾는다.
+- 인수가 있으면 `[project root]/e2e/` 아래의 정확한 spec 또는 domain으로 해석한다.
+- 인수가 없으면 현재 세션의 `generation.md`와 `[project root]/test-results/`에서 직전 실패 spec을 찾는다.
 - 둘 이상의 후보가 있고 직전 실행과 연결할 근거가 없으면 사용자에게 대상을 묻는다.
-- spec이 `apps/service/e2e/` 밖이면 자동 수정하지 않는다.
-- 파일 수정에는 저장소 루트 기준 `SPEC_PATH`를, `pnpm -C apps/service` 명령에는 `e2e/`로 시작하는 `SPEC_TARGET`을 사용한다.
+- spec이 `[project root]/e2e/` 밖이면 자동 수정하지 않는다.
+- 파일 수정에는 저장소 루트 기준 `SPEC_PATH`를, `pnpm -C [project root]` 명령에는 `e2e/`로 시작하는 `SPEC_TARGET`을 사용한다.
+- fixture 수정은 대상 spec의 domain fixture/builder로 제한한다. 다른 domain이 공유하는 fixture를 즉시 변경하지 않는다.
 
 ## 2. 재현
 
 현재 세션이 있으면 `scenario.md`의 원래 oracle과 precondition을 함께 읽는다. 다음 명령으로 retry 없이 실패를 재현한다.
 
 ```bash
-pnpm -C apps/service exec playwright test <SPEC_TARGET> \
+pnpm -C [project root] exec playwright test <SPEC_TARGET> \
   --project=chromium --retries=0 --trace=on --screenshot=only-on-failure
 ```
 
