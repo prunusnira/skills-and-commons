@@ -13,6 +13,10 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 입력: `$ARGUMENTS`
 
+## 공통 리뷰 기준
+
+리뷰 결과의 중요도 분류와 리포트 작성 방식은 [review.md](review.md)를 따른다. OCR 고유의 JSON 필드에 심각도 값이 있더라도, 최종 리포트에는 `review.md`의 1~4단계 기준으로 정규화해 기록한다.
+
 ## 목적
 
 로컬 환경에서 `ocr` CLI를 실행해 현재 브랜치(또는 워크스페이스) 변경사항을 AI 코드 리뷰한 뒤, 결과를 한국어 HTML로 `.claude/ocr/`에 저장한다. GitHub Actions 워크플로우(`open-code-review.yml`) 없이 커밋 전에 빠르게 피드백을 받을 때 사용.
@@ -137,20 +141,20 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
    - 리뷰된 커밋 수, 변경 파일 수 (사전 수집한 통계에서)
 
 2. **요약 박스** (`summary-box` 클래스)
-   - 발견된 이슈 수 (comments.length)
+   - 발견된 이슈 수와 1~4단계별 집계 (comments.length 기준)
    - 경고 수 (warnings.length)
    - 0건이면 "발견된 이슈가 없습니다. 코드가 양호해 보입니다." 문구
 
-3. **이슈 목록** (comments 배열)
+3. **이슈 목록** (comments 배열, 4단계부터 1단계 순서)
    - 각 이슈는 파일별 카드로 표시
-   - 항목: 파일 경로(`.file-path`), 라인 범위, 심각도(있을 경우), 내용(content)
+   - 항목: 파일 경로(`.file-path`), 라인 범위, `review.md` 기준의 단계, 내용(content), 영향과 권장 조치
    - suggestion_code와 existing_code가 있으면 `<details><summary>제안 변경</summary>` 로 접기/펼치기. before/after 코드블록 형식
    - 라인 정보가 없는 코멘트는 "파일 전체"로 표시
 
 4. **검사된 파일 목록** (optional - result에 reviewed_files 또는 files 필드가 있을 경우)
    - 파일 경로와 검사 상태만 표 형태
 
-5. **경고** (warnings가 있을 경우만 렌더링)
+5. **미확인 사항·경고** (warnings가 있을 경우만 렌더링)
    - 원인과 조치 제안을 한국어로 표기. 단순 stderr 복사 금지
 
 6. **메타데이터 푸터**
@@ -182,7 +186,7 @@ HTML 저장 후 `.claude/ocr/index.json`에 2단계에서 만든 캐시 키로 �
 터미널에는 아래 결과만 짧게 출력한다:
 
 - 저장된 HTML 파일 경로
-- 발견된 이슈 수 (심각도별 집계 가능하면 표시)
+- 발견된 이슈 수 (1~4단계별 집계)
 - 파일별 이슈 분포 (상위 3개 파일)
 - 경고 수
 
