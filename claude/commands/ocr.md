@@ -15,11 +15,11 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 ## 공통 리뷰 기준
 
-리뷰 결과의 중요도 분류와 리포트 작성 방식은 [review.md](review.md)를 따른다. OCR 고유의 JSON 필드에 심각도 값이 있더라도, 최종 리포트에는 `review.md`의 1~4단계 기준으로 정규화해 기록한다.
+리뷰 결과의 중요도 분류와 리포트 작성 방식은 [review.md](review.md)를 따른다. `--preview`가 아닌 경우 OCR CLI 실행 후 발견 사항을 1~4단계로 분류하고, 이슈가 없거나 파싱 실패한 경우도 `.claude/review/{YYYYMMDD-HHMMSS}-ocr-{ref}.html`에 저장한 뒤 파일 경로와 단계별 이슈 수를 보고한다. OCR 고유의 JSON 필드에 심각도 값이 있더라도, 최종 리포트에는 `review.md`의 1~4단계 기준으로 정규화해 기록한다.
 
 ## 목적
 
-로컬 환경에서 `ocr` CLI를 실행해 현재 브랜치(또는 워크스페이스) 변경사항을 AI 코드 리뷰한 뒤, 결과를 한국어 HTML로 `.claude/ocr/`에 저장한다. GitHub Actions 워크플로우(`open-code-review.yml`) 없이 커밋 전에 빠르게 피드백을 받을 때 사용.
+로컬 환경에서 `ocr` CLI를 실행해 현재 브랜치(또는 워크스페이스) 변경사항을 AI 코드 리뷰한 뒤, 결과를 한국어 HTML로 `.claude/review/`에 저장한다. GitHub Actions 워크플로우(`open-code-review.yml`) 없이 커밋 전에 빠르게 피드백을 받을 때 사용.
 
 참고: https://github.com/alibaba/open-code-review
 
@@ -73,7 +73,7 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 ## 2.5단계: 캐시 조회
 
-`.claude/ocr/index.json`에서 캐시 키로 조회. 파일이 없으면 빈 객체로 간주.
+`.claude/review/index.json`에서 캐시 키로 조회. 파일이 없으면 빈 객체로 간주.
 
 - 키가 존재하고 매핑된 HTML 파일이 실제 디스크에 있으면 캐시 hit:
   - OCR CLI 실행, HTML 생성 생략
@@ -87,7 +87,7 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 ```json
 {
   "range:abc1234:def5678": {
-    "file": "20260623-153012-range-JOB-01.html",
+    "file": "20260623-153012-ocr-JOB-01.html",
     "base_sha": "abc1234...",
     "head_sha": "def5678...",
     "base_ref": "origin/develop",
@@ -121,14 +121,13 @@ argument-hint: [target_branch|@<commit>] [--preview] [--json]
 
 ### 파일 위치
 
-`.claude/ocr/` 디렉터리가 없으면 먼저 생성한다.
+`.claude/review/` 디렉터리가 없으면 먼저 생성한다.
 
-파일명 규칙: `{YYYYMMDD-HHMMSS}-{mode}-{ref}.html`
+파일명 규칙: `{YYYYMMDD-HHMMSS}-ocr-{ref}.html`
 - timestamp: `date +%Y%m%d-%H%M%S`
-- mode: `commit` 또는 `range`
 - ref: 단일 커밋 모드면 SHA 앞 7자리, 브랜치 범위 모드면 현재 브랜치명 (`/`는 `-`로 치환)
 
-예: `.claude/ocr/20260623-153012-range-JOB-01.html`
+예: `.claude/review/20260623-153012-ocr-JOB-01.html`
 
 ### HTML 구조
 
@@ -179,7 +178,7 @@ comments가 빈 배열이거나 JSON 파싱에 실패한 경우에도 HTML을 �
 
 ### 인덱스 갱신
 
-HTML 저장 후 `.claude/ocr/index.json`에 2단계에서 만든 캐시 키로 엔트리를 추가/갱신한다. 기존 키가 있으면 덮어쓰기. 파싱 실패로 에러 페이지를 생성한 경우에는 인덱스에 추가하지 않는다 (캐시 무효).
+HTML 저장 후 `.claude/review/index.json`에 2단계에서 만든 캐시 키로 엔트리를 추가/갱신한다. 기존 키가 있으면 덮어쓰기. 파싱 실패로 에러 페이지를 생성한 경우에는 인덱스에 추가하지 않는다 (캐시 무효).
 
 ## 5단계: 결과 보고
 
@@ -209,4 +208,4 @@ HTML 저장 후 `.claude/ocr/index.json`에 2단계에서 만든 캐시 키로 �
 - ocr 설정 파일(`~/.opencodereview/config.json`)에는 API 키가 포함될 수 있으므로 출력 시 auth_token, api_key, token 값은 마스킹
 - HTML에는 API 키, LLM URL의 인증 정보, 로컬 절대 경로 중 민감 정보는 포함하지 않는다
 - HTML은 PR을 만들기 전 사전 점검 용도의 개인 메모. CI를 대체하지 않는다
-- `.claude/ocr/` 디렉터리의 HTML 파일들은 누적되므로 사용자가 주기적으로 정리한다. 되돌리기 어려운 자동 삭제는 하지 않는다
+- `.claude/review/` 디렉터리의 HTML 파일들은 누적되므로 사용자가 주기적으로 정리한다. 되돌리기 어려운 자동 삭제는 하지 않는다
