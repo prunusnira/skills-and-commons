@@ -6,7 +6,7 @@
 
 - `AGENTS.md`: 이 카탈로그 저장소의 공통 지침. 작업 시작 시 `.agents/README.md`와 요청에 맞는 skill을 읽도록 안내한다.
 - `.agents/README.md`: 공통 에이전트 자료의 인덱스와 사용법
-- `.agents/profiles/<stack>/AGENTS.md`: Android, Next.js, React, Unity 프로젝트에 적용할 수 있는 지침 템플릿. 대상 프로젝트에 맞는 파일을 복사해 루트 또는 해당 하위 경로의 `AGENTS.md`로 사용한다.
+- `.agents/profiles/<stack>/AGENTS.md`: Android, C++/CMake, Next.js, React, Unity 프로젝트에 적용할 수 있는 지침 템플릿. 대상 프로젝트에 맞는 파일을 복사해 루트 또는 해당 하위 경로의 `AGENTS.md`로 사용한다.
 - `.agents/skills/<name>/SKILL.md`: 공통 Agent Skills 형식으로 정리한 작업 절차와 참고 문서
 - `.claude/skills/<name>`: Claude Code가 프로젝트 skill로 불러오도록 `.agents/skills/<name>`을 가리키는 심볼릭 링크. 원본 문서는 `.agents/skills`에서만 관리한다.
 - `.agents/skills/e2e/references/WORKFLOW.md`: E2E skill 역할들이 공유하는 계약
