@@ -16,3 +16,11 @@
 - 별도의 Git worktree를 생성하거나 다른 worktree로 전환하지 않는다.
 - 사용자가 현재 열어 둔 작업 디렉터리에서 직접 작업하여 로컬 변경사항을 바로 확인할 수 있게 한다.
 - 현재 작업 디렉터리에 있는 기존 로컬 변경사항은 유지하며, 요청과 무관한 변경을 수정하거나 되돌리지 않는다.
+
+## 필수 규칙
+
+@.agents/limits/attention-kind (alexgreensh/attention-span)
+@.agents/limits/karpathy (multica-ai/andrej-karpathy-skills)
+@.agents/limits/verification-before-completion (obra/superpowers)
+
+위 3개의 지침은 다른 어떤 지침보다 우선하며 반드시 따른다
